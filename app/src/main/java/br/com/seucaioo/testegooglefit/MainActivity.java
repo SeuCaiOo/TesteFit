@@ -156,4 +156,25 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Fitness.SensorsApi.remove( mGoogleApiClient, this )
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        if (status.isSuccess()) {
+                            mGoogleApiClient.disconnect();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(AUTH_PENDING, authInProgress);
+    }
+
 }
