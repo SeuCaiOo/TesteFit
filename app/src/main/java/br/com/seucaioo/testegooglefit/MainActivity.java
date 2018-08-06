@@ -75,6 +75,22 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if( requestCode == REQUEST_OAUTH ) {
+            authInProgress = false;
+            if( resultCode == RESULT_OK ) {
+                if( !mApiClient.isConnecting() && !mApiClient.isConnected() ) {
+                    mApiClient.connect();
+                }
+            } else if( resultCode == RESULT_CANCELED ) {
+                Log.e( TAG, "RESULT_CANCELED" );
+            }
+        } else {
+            Log.e(TAG, "requestCode NOT request_oauth");
+        }
+    }
+
+    @Override
     public void onConnected(Bundle bundle) {
 
     }
