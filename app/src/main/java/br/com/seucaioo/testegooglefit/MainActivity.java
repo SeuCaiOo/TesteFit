@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+
+    private static final String TAG = "TesteGoogleFit";
+
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
@@ -71,63 +74,9 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         mApiClient.connect();
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if( requestCode == REQUEST_OAUTH ) {
-            authInProgress = false;
-            if( resultCode == RESULT_OK ) {
-                if( !mApiClient.isConnecting() && !mApiClient.isConnected() ) {
-                    mApiClient.connect();
-                }
-            } else if( resultCode == RESULT_CANCELED ) {
-                Log.e( "GoogleFit", "RESULT_CANCELED" );
-            }
-        } else {
-            Log.e("GoogleFit", "requestCode NOT request_oauth");
-        }
-    }
-
-
     @Override
     public void onConnected(Bundle bundle) {
-        DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
-                .setDataTypes( DataType.TYPE_STEP_COUNT_CUMULATIVE )
-                .setDataSourceTypes( DataSource.TYPE_RAW )
-                .build();
 
-        ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
-            @Override
-            public void onResult(DataSourcesResult dataSourcesResult) {
-                for( DataSource dataSource : dataSourcesResult.getDataSources() ) {
-                    if( DataType.TYPE_STEP_COUNT_CUMULATIVE.equals( dataSource.getDataType() ) ) {
-                        registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_CUMULATIVE);
-                    }
-                }
-            }
-        };
-
-        Fitness.SensorsApi.findDataSources(mApiClient, dataSourceRequest)
-                .setResultCallback(dataSourcesResultCallback);
-    }
-
-    private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
-
-        SensorRequest request = new SensorRequest.Builder()
-                .setDataSource( dataSource )
-                .setDataType( dataType )
-                .setSamplingRate( 3, TimeUnit.SECONDS )
-                .build();
-
-        Fitness.SensorsApi.add( mApiClient, request, this )
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.isSuccess()) {
-                            Log.e( "GoogleFit", "SensorApi successfully added" );
-                        }
-                    }
-                });
     }
 
     @Override
@@ -145,43 +94,14 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
             }
         } else {
-            Log.e( "GoogleFit", "authInProgress" );
+            Log.e( TAG, "authInProgress" );
         }
     }
 
 
     @Override
     public void onDataPoint(DataPoint dataPoint) {
-        for( final Field field : dataPoint.getDataType().getFields() ) {
-            final Value value = dataPoint.getValue( field );
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        Fitness.SensorsApi.remove( mApiClient, this )
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.isSuccess()) {
-                            mApiClient.disconnect();
-                        }
-                    }
-                });
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(AUTH_PENDING, authInProgress);
     }
 
 }
