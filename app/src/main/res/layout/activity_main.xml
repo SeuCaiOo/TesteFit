@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvLabel"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btn_view_week"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="40sp"
-        android:fontFamily="casual"
-        android:textStyle="bold"
-        android:textColor="#000"
-        android:text="" />
+        android:text="View this weeks steps" />
 
-    <TextView
-        android:id="@+id/tvSteps"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btn_view_today"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="40sp"
-        android:fontFamily="casual"
-        android:textColor="#000"
-        android:text="" />
+        android:text="View today's steps"/>
+
+    <Button
+        android:id="@+id/btn_add_steps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add step data for today" />
+
+    <Button
+        android:id="@+id/btn_update_steps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update step data for yesterday" />
+
+    <Button
+        android:id="@+id/btn_delete_steps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete step data for yesterday" />
 
 </LinearLayout>
