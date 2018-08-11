@@ -40,9 +40,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private Button mButtonViewWeek;
     private Button mButtonViewToday;
-    private Button mButtonAddSteps;
-    private Button mButtonUpdateSteps;
-    private Button mButtonDeleteSteps;
+//    private Button mButtonAddSteps;
+//    private Button mButtonUpdateSteps;
+//    private Button mButtonDeleteSteps;
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.HISTORY_API)
-                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+                .addScope(new Scope(Scopes.FITNESS_BODY_READ_WRITE))
                 .addConnectionCallbacks(this)
                 .enableAutoManage(this, 0, this)
                 .build();
@@ -64,15 +64,15 @@ public class MainActivity extends AppCompatActivity implements
     private void initViews() {
         mButtonViewWeek = (Button) findViewById(R.id.btn_view_week);
         mButtonViewToday = (Button) findViewById(R.id.btn_view_today);
-        mButtonAddSteps = (Button) findViewById(R.id.btn_add_steps);
-        mButtonUpdateSteps = (Button) findViewById(R.id.btn_update_steps);
-        mButtonDeleteSteps = (Button) findViewById(R.id.btn_delete_steps);
+//        mButtonAddSteps = (Button) findViewById(R.id.btn_add_steps);
+//        mButtonUpdateSteps = (Button) findViewById(R.id.btn_update_steps);
+//        mButtonDeleteSteps = (Button) findViewById(R.id.btn_delete_steps);
 
         mButtonViewWeek.setOnClickListener(this);
         mButtonViewToday.setOnClickListener(this);
-        mButtonAddSteps.setOnClickListener(this);
-        mButtonUpdateSteps.setOnClickListener(this);
-        mButtonDeleteSteps.setOnClickListener(this);
+//        mButtonAddSteps.setOnClickListener(this);
+//        mButtonUpdateSteps.setOnClickListener(this);
+//        mButtonDeleteSteps.setOnClickListener(this);
     }
 
     public void onConnected(@Nullable Bundle bundle) {
@@ -81,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements
 
     //In use, call this every 30 seconds in active mode, 60 in ambient on watch faces
     private void displayStepDataForToday() {
-        DailyTotalResult result = Fitness.HistoryApi.readDailyTotal( mGoogleApiClient, DataType.TYPE_STEP_COUNT_DELTA ).await(1, TimeUnit.MINUTES);
+        DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
+                mGoogleApiClient, DataType.TYPE_WEIGHT ).await(1, TimeUnit.MINUTES);
         showDataSet(result.getTotal());
     }
 
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements
 
         //Check how many steps were walked and recorded in the last 7 days
         DataReadRequest readRequest = new DataReadRequest.Builder()
-                .aggregate(DataType.TYPE_STEP_COUNT_DELTA, DataType.AGGREGATE_STEP_COUNT_DELTA)
+                .aggregate(DataType.TYPE_WEIGHT, DataType.TYPE_WEIGHT)
                 .bucketByTime(1, TimeUnit.DAYS)
                 .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
                 .build();
@@ -134,8 +135,10 @@ public class MainActivity extends AppCompatActivity implements
         for (DataPoint dp : dataSet.getDataPoints()) {
             Log.e("History", "Data point:");
             Log.e("History", "\tType: " + dp.getDataType().getName());
-            Log.e("History", "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + " " + timeFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
-            Log.e("History", "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + " " + timeFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
+            Log.e("History", "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS))
+                    + " " + timeFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
+            Log.e("History", "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS))
+                    + " " + timeFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
             for(Field field : dp.getDataType().getFields()) {
                 Log.e("History", "\tField: " + field.getName() +
                         " Value: " + dp.getValue(field));
@@ -200,7 +203,9 @@ public class MainActivity extends AppCompatActivity implements
         point.getValue(Field.FIELD_STEPS).setInt(stepCountDelta);
         dataSet.add(point);
 
-        DataUpdateRequest updateRequest = new DataUpdateRequest.Builder().setDataSet(dataSet).setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS).build();
+        DataUpdateRequest updateRequest =
+                new DataUpdateRequest.Builder().setDataSet(dataSet).setTimeInterval(startTime,
+                        endTime, TimeUnit.MILLISECONDS).build();
         Fitness.HistoryApi.updateData(mGoogleApiClient, updateRequest).await(1, TimeUnit.MINUTES);
     }
 
@@ -242,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements
                 new ViewTodaysStepCountTask().execute();
                 break;
             }
-            case R.id.btn_add_steps: {
+/*            case R.id.btn_add_steps: {
                 new AddStepsToGoogleFitTask().execute();
                 break;
             }
@@ -253,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.btn_delete_steps: {
                 new DeleteYesterdaysStepsTask().execute();
                 break;
-            }
+            }*/
         }
     }
 
@@ -271,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private class AddStepsToGoogleFitTask extends AsyncTask<Void, Void, Void> {
+/*    private class AddStepsToGoogleFitTask extends AsyncTask<Void, Void, Void> {
         protected Void doInBackground(Void... params) {
             addStepDataToGoogleFit();
             displayLastWeeksData();
@@ -293,5 +298,5 @@ public class MainActivity extends AppCompatActivity implements
             displayLastWeeksData();
             return null;
         }
-    }
+    }*/
 }

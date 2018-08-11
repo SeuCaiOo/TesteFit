@@ -9,7 +9,7 @@
         android:id="@+id/btn_view_week"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View this weeks steps" />
+        android:text="Não Clique" />
 
     <Button
         android:id="@+id/btn_view_today"
@@ -17,7 +17,13 @@
         android:layout_height="wrap_content"
         android:text="View today's steps"/>
 
-    <Button
+
+</LinearLayout>
+
+
+<!--
+
+ <Button
         android:id="@+id/btn_add_steps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,4 +41,4 @@
         android:layout_height="wrap_content"
         android:text="Delete step data for yesterday" />
 
-</LinearLayout>
+-->
