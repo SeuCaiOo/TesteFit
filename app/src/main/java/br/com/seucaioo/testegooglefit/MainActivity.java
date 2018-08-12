@@ -8,29 +8,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
-import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.request.DataDeleteRequest;
-import com.google.android.gms.fitness.request.DataReadRequest;
-import com.google.android.gms.fitness.request.DataUpdateRequest;
 import com.google.android.gms.fitness.result.DailyTotalResult;
-import com.google.android.gms.fitness.result.DataReadResult;
 
 import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements
@@ -38,11 +29,10 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
-    private Button mButtonViewWeek;
-    private Button mButtonViewToday;
-//    private Button mButtonAddSteps;
-//    private Button mButtonUpdateSteps;
-//    private Button mButtonDeleteSteps;
+    private Button mButtonViewHeight;
+    private Button mButtonViewWeight;
+
+    private TextView tvWeight, tvHeight;
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -56,38 +46,50 @@ public class MainActivity extends AppCompatActivity implements
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.HISTORY_API)
                 .addScope(new Scope(Scopes.FITNESS_BODY_READ_WRITE))
+                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+                .addScope(new Scope(Scopes.FITNESS_LOCATION_READ_WRITE))
                 .addConnectionCallbacks(this)
                 .enableAutoManage(this, 0, this)
                 .build();
     }
 
-    private void initViews() {
-        mButtonViewWeek = (Button) findViewById(R.id.btn_view_week);
-        mButtonViewToday = (Button) findViewById(R.id.btn_view_today);
-//        mButtonAddSteps = (Button) findViewById(R.id.btn_add_steps);
-//        mButtonUpdateSteps = (Button) findViewById(R.id.btn_update_steps);
-//        mButtonDeleteSteps = (Button) findViewById(R.id.btn_delete_steps);
 
-        mButtonViewWeek.setOnClickListener(this);
-        mButtonViewToday.setOnClickListener(this);
-//        mButtonAddSteps.setOnClickListener(this);
-//        mButtonUpdateSteps.setOnClickListener(this);
-//        mButtonDeleteSteps.setOnClickListener(this);
+    /** Init vars*/
+    private void initViews() {
+        mButtonViewHeight =  findViewById(R.id.btn_view_height);
+        mButtonViewWeight = findViewById(R.id.btn_view_weight);
+        tvHeight = findViewById(R.id.tvHeight);
+        tvWeight = findViewById(R.id.tvWeight);
+
+        mButtonViewHeight.setOnClickListener(this);
+        mButtonViewWeight.setOnClickListener(this);
     }
 
+    /** Interface */
     public void onConnected(@Nullable Bundle bundle) {
         Log.e("HistoryAPI", "onConnected");
     }
 
+
+
+
     //In use, call this every 30 seconds in active mode, 60 in ambient on watch faces
-    private void displayStepDataForToday() {
+    private void displayWeightDataForToday() {
         DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
                 mGoogleApiClient, DataType.TYPE_WEIGHT ).await(1, TimeUnit.MINUTES);
         showDataSet(result.getTotal());
     }
 
-    private void displayLastWeeksData() {
-        Calendar cal = Calendar.getInstance();
+    private void displayHeightDataForToday() {
+        DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
+                mGoogleApiClient, DataType.TYPE_HEIGHT ).await(1, TimeUnit.MINUTES);
+        showDataSet(result.getTotal());
+
+        /*DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
+                mGoogleApiClient, DataType.TYPE_HEIGHT ).await(1, TimeUnit.MINUTES);
+        showDataSet(result.getTotal());*/
+
+        /*Calendar cal = Calendar.getInstance();
         Date now = new Date();
         cal.setTime(now);
         long endTime = cal.getTimeInMillis();
@@ -124,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements
                 showDataSet(dataSet);
             }
         }
+        */
+
+
+
     }
 
 
@@ -132,99 +138,48 @@ public class MainActivity extends AppCompatActivity implements
         DateFormat dateFormat = DateFormat.getDateInstance();
         DateFormat timeFormat = DateFormat.getTimeInstance();
 
-        for (DataPoint dp : dataSet.getDataPoints()) {
+
+
+
+        for (final DataPoint dp : dataSet.getDataPoints()) {
             Log.e("History", "Data point:");
             Log.e("History", "\tType: " + dp.getDataType().getName());
             Log.e("History", "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS))
                     + " " + timeFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
             Log.e("History", "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS))
                     + " " + timeFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
-            for(Field field : dp.getDataType().getFields()) {
+
+            for(final Field field : dp.getDataType().getFields()) {
+
                 Log.e("History", "\tField: " + field.getName() +
                         " Value: " + dp.getValue(field));
+
+                if(field.getName().equals("average")){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            if (dp.getDataType().getName().equals("com.google.height.summary")) {
+                                tvHeight.setText(String.valueOf(dp.getValue(field)));
+                            } else if(dp.getDataType().getName().equals("com.google.weight.summary")) {
+                                tvWeight.setText(String.valueOf(dp.getValue(field)));
+                            }
+
+
+                        }
+                    });
+
+                }
+
             }
         }
     }
 
-    private void addStepDataToGoogleFit() {
-        //Adds steps spread out evenly from start time to end time
-        Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        cal.setTime(now);
-        long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.HOUR_OF_DAY, -1);
-        long startTime = cal.getTimeInMillis();
 
-        DataSource dataSource = new DataSource.Builder()
-                .setAppPackageName(this)
-                .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
-                .setName("Step Count")
-                .setType(DataSource.TYPE_RAW)
-                .build();
 
-        int stepCountDelta = 1000000;
-        DataSet dataSet = DataSet.create(dataSource);
 
-        DataPoint point = dataSet.createDataPoint()
-                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS);
-        point.getValue(Field.FIELD_STEPS).setInt(stepCountDelta);
-        dataSet.add(point);
 
-        Status status = Fitness.HistoryApi.insertData(mGoogleApiClient, dataSet).await(1, TimeUnit.MINUTES);
-
-        if (!status.isSuccess()) {
-            Log.e( "History", "Problem with inserting data: " + status.getStatusMessage());
-        } else {
-            Log.e( "History", "data inserted" );
-        }
-    }
-
-    private void updateStepDataOnGoogleFit() {
-        //If two entries overlap, the new data is dropped when trying to insert. Instead, you need to use update
-        Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        cal.setTime(now);
-        long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.HOUR_OF_DAY, -1);
-        long startTime = cal.getTimeInMillis();
-
-        DataSource dataSource = new DataSource.Builder()
-                .setAppPackageName(this)
-                .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
-                .setName("Step Count")
-                .setType(DataSource.TYPE_RAW)
-                .build();
-
-        int stepCountDelta = 2000000;
-        DataSet dataSet = DataSet.create(dataSource);
-
-        DataPoint point = dataSet.createDataPoint()
-                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS);
-        point.getValue(Field.FIELD_STEPS).setInt(stepCountDelta);
-        dataSet.add(point);
-
-        DataUpdateRequest updateRequest =
-                new DataUpdateRequest.Builder().setDataSet(dataSet).setTimeInterval(startTime,
-                        endTime, TimeUnit.MILLISECONDS).build();
-        Fitness.HistoryApi.updateData(mGoogleApiClient, updateRequest).await(1, TimeUnit.MINUTES);
-    }
-
-    private void deleteStepDataOnGoogleFit() {
-        Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        cal.setTime(now);
-        long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.DAY_OF_YEAR, -1);
-        long startTime = cal.getTimeInMillis();
-
-        DataDeleteRequest request = new DataDeleteRequest.Builder()
-                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
-                .addDataType(DataType.TYPE_STEP_COUNT_DELTA)
-                .build();
-
-        Fitness.HistoryApi.deleteData(mGoogleApiClient, request).await(1, TimeUnit.MINUTES);
-    }
-
+    /** Interfaces*/
     @Override
     public void onConnectionSuspended(int i) {
         Log.e("HistoryAPI", "onConnectionSuspended");
@@ -235,68 +190,34 @@ public class MainActivity extends AppCompatActivity implements
         Log.e("HistoryAPI", "onConnectionFailed");
     }
 
-
+    /** Buttons */
     @Override
-    public void onClick(View v) {
+    public void onClick(View v){
         switch(v.getId()) {
-            case R.id.btn_view_week: {
-                new ViewWeekStepCountTask().execute();
+            case R.id.btn_view_height: {
+                new ViewTodaysHeightTask().execute();
                 break;
             }
-            case R.id.btn_view_today: {
-                new ViewTodaysStepCountTask().execute();
+            case R.id.btn_view_weight: {
+                new ViewTodaysWeightTask().execute();
                 break;
             }
-/*            case R.id.btn_add_steps: {
-                new AddStepsToGoogleFitTask().execute();
-                break;
-            }
-            case R.id.btn_update_steps: {
-                new UpdateStepsOnGoogleFitTask().execute();
-                break;
-            }
-            case R.id.btn_delete_steps: {
-                new DeleteYesterdaysStepsTask().execute();
-                break;
-            }*/
         }
     }
 
-    private class ViewWeekStepCountTask extends AsyncTask<Void, Void, Void> {
+    /** AssyncTasks */
+    private class ViewTodaysHeightTask extends AsyncTask<Void, Void, Void> {
         protected Void doInBackground(Void... params) {
-            displayLastWeeksData();
+            displayHeightDataForToday();
             return null;
         }
     }
 
-    private class ViewTodaysStepCountTask extends AsyncTask<Void, Void, Void> {
+    private class ViewTodaysWeightTask extends AsyncTask<Void, Void, Void> {
         protected Void doInBackground(Void... params) {
-            displayStepDataForToday();
+            displayWeightDataForToday();
             return null;
         }
     }
 
-/*    private class AddStepsToGoogleFitTask extends AsyncTask<Void, Void, Void> {
-        protected Void doInBackground(Void... params) {
-            addStepDataToGoogleFit();
-            displayLastWeeksData();
-            return null;
-        }
-    }
-
-    private class UpdateStepsOnGoogleFitTask extends AsyncTask<Void, Void, Void> {
-        protected Void doInBackground(Void... params) {
-            updateStepDataOnGoogleFit();
-            displayLastWeeksData();
-            return null;
-        }
-    }
-
-    private class DeleteYesterdaysStepsTask extends AsyncTask<Void, Void, Void> {
-        protected Void doInBackground(Void... params) {
-            deleteStepDataOnGoogleFit();
-            displayLastWeeksData();
-            return null;
-        }
-    }*/
 }

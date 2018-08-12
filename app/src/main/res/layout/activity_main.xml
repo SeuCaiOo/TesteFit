@@ -6,16 +6,40 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/btn_view_week"
+        android:id="@+id/btn_view_height"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Não Clique" />
+        android:text="Altura" />
 
     <Button
-        android:id="@+id/btn_view_today"
+        android:id="@+id/btn_view_weight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View today's steps"/>
+        android:text="Peso"/>
+    
+    
+    
+    <TextView
+        android:id="@+id/tvHeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:textAlignment="center"
+        android:fontFamily="casual"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:text=""/>
+
+    <TextView
+        android:id="@+id/tvWeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:textAlignment="center"
+        android:fontFamily="casual"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:text=""/>
 
 
 </LinearLayout>
