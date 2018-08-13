@@ -9,13 +9,13 @@
         android:id="@+id/btn_view_height"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Altura" />
+        android:text="Batimento Cardiaco" />
 
     <Button
         android:id="@+id/btn_view_weight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Peso"/>
+        android:text="Pasos"/>
     
     
     

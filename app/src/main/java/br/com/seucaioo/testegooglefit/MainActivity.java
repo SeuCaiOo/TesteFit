@@ -19,9 +19,11 @@ import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
+import com.google.android.gms.fitness.data.HealthDataTypes;
 import com.google.android.gms.fitness.result.DailyTotalResult;
 
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements
@@ -76,13 +78,16 @@ public class MainActivity extends AppCompatActivity implements
     //In use, call this every 30 seconds in active mode, 60 in ambient on watch faces
     private void displayWeightDataForToday() {
         DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
-                mGoogleApiClient, DataType.TYPE_WEIGHT ).await(1, TimeUnit.MINUTES);
+                mGoogleApiClient, DataType.TYPE_STEP_COUNT_DELTA).await(1, TimeUnit.MINUTES);
         showDataSet(result.getTotal());
+//        DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
+//                mGoogleApiClient, HealthDataTypes.TYPE_BODY_TEMPERATURE).await(1, TimeUnit.MINUTES);
+//        showDataSet(result.getTotal());
     }
 
     private void displayHeightDataForToday() {
         DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
-                mGoogleApiClient, DataType.TYPE_HEIGHT ).await(1, TimeUnit.MINUTES);
+                mGoogleApiClient, DataType.TYPE_HEART_RATE_BPM ).await(1, TimeUnit.MINUTES);
         showDataSet(result.getTotal());
 
         /*DailyTotalResult result = Fitness.HistoryApi.readDailyTotal(
@@ -154,14 +159,14 @@ public class MainActivity extends AppCompatActivity implements
                 Log.e("History", "\tField: " + field.getName() +
                         " Value: " + dp.getValue(field));
 
-                if(field.getName().equals("average")){
+//                if(field.getName().equals(F)){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
-                            if (dp.getDataType().getName().equals("com.google.height.summary")) {
-                                tvHeight.setText(String.valueOf(dp.getValue(field)));
-                            } else if(dp.getDataType().getName().equals("com.google.weight.summary")) {
+                            if (dp.getDataType().getName().equals("com.google.heart_rate.summary")) {
+                                tvHeight.setText(String.valueOf(dp.getValue(field)) + " BPM");
+                            } else if(dp.getDataType().getName().equals("com.google.step_count.delta")) {
                                 tvWeight.setText(String.valueOf(dp.getValue(field)));
                             }
 
@@ -169,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements
                         }
                     });
 
-                }
+//                }
 
             }
         }
