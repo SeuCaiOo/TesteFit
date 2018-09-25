@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1043883023926",
+    "firebase_url": "https://seucaioo-appfit-212423.firebaseio.com",
+    "project_id": "seucaioo-appfit-212423",
+    "storage_bucket": "seucaioo-appfit-212423.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043883023926:android:e8b61636ba8db3dc",
+        "android_client_info": {
+          "package_name": "br.com.seucaioo.testegooglefit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1043883023926-ibdhkvhca0knchqcddo68dm14ggn6ueu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.seucaioo.testegooglefit",
+            "certificate_hash": "e6e9209c5921ee3e2eef5b4353c021b0be02901a"
+          }
+        },
+        {
+          "client_id": "1043883023926-sj6dvn1ngpb0d0nens25pk0q50akjol5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7VgDp-efK-lvG3E417mlWi53oNRQasI0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1043883023926-sj6dvn1ngpb0d0nens25pk0q50akjol5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

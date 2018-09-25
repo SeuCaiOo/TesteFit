@@ -8,7 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -21,6 +23,13 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.data.HealthDataTypes;
 import com.google.android.gms.fitness.result.DailyTotalResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -31,8 +40,19 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
+    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+    private String userID;
+
+
     private Button mButtonViewHeight;
     private Button mButtonViewWeight;
+
+
+    private EditText edtEmail, edtSenha;
+    private Button btnLogar, btnGravar, btnSair;
 
     private TextView tvWeight, tvHeight;
 
@@ -42,6 +62,12 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        FirebaseUser user = firebaseAuth.getCurrentUser();
+//        userID = user.getUid();
+
+//        DatabaseReference reference =  databaseReference.child("teste").child("sensor");
+
 
         initViews();
 
@@ -56,6 +82,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+
+
+
+
+
+
     /** Init vars*/
     private void initViews() {
         mButtonViewHeight =  findViewById(R.id.btn_view_height);
@@ -65,14 +97,107 @@ public class MainActivity extends AppCompatActivity implements
 
         mButtonViewHeight.setOnClickListener(this);
         mButtonViewWeight.setOnClickListener(this);
+
+        edtEmail = findViewById(R.id.edtEmail);
+        edtSenha = findViewById(R.id.edtPass);
+        btnLogar = findViewById(R.id.btnLogar);
+        btnLogar.setOnClickListener(onLogar());
+        btnGravar = findViewById(R.id.btnGravar);
+        btnGravar.setOnClickListener(onGravar());
+        btnSair = findViewById(R.id.btnSair);
+        btnSair.setOnClickListener(onSair());
+    }
+
+    private View.OnClickListener onSair() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                firebaseAuth.signOut();
+                Toast.makeText(MainActivity.this, "Sucesso ao Deslogar Usuário !",
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private View.OnClickListener onGravar() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        };
+    }
+
+    private View.OnClickListener onLogar() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String user = edtEmail.getText().toString();
+                String pass = edtSenha.getText().toString();
+
+                //Logar usuario
+                firebaseAuth.signInWithEmailAndPassword(user, pass)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+//                                    final DatabaseReference reference = databaseReference
+//                                            .child("teste").child("users");
+//
+//                                    Usuario usuario = new Usuario();
+//                                    usuario.setNome("Caio");
+//                                    usuario.setEmail(user);
+//                                    usuario.setId(firebaseAuth.getCurrentUser().getUid());
+//                                    reference.child(firebaseAuth.getCurrentUser().getUid()).setValue(usuario);
+
+                                    Log.i("signIn", "Sucesso ao logar usuario !");
+                                } else {
+
+                                    Log.i("signIn", "Erro ao logar usuario !");
+
+                                }
+                            }
+                        });
+
+
+
+/*
+        //Cadastrar usuario
+        firebaseAuth.createUserWithEmailAndPassword(
+                user, pass)
+                .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+
+                            DatabaseReference reference = databaseReference
+                                    .child("teste").child("users");
+
+                            Usuario usuario = new Usuario();
+                            usuario.setNome("Caio");
+                            usuario.setEmail(user);
+                            usuario.setId(firebaseAuth.getCurrentUser().getUid());
+                            reference.child(firebaseAuth.getCurrentUser().getUid()).setValue(usuario);
+
+                            Log.i("CreateUser", "Sucesso ao cadastar usuario !");
+                        } else {
+
+                            Log.i("CreateUser", "Erro ao cadastar usuario !");
+
+                        }
+                    }
+                });
+*/
+
+
+            }
+        };
     }
 
     /** Interface */
     public void onConnected(@Nullable Bundle bundle) {
         Log.e("HistoryAPI", "onConnected");
     }
-
-
 
 
     //In use, call this every 30 seconds in active mode, 60 in ambient on watch faces
@@ -137,7 +262,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
     private void showDataSet(DataSet dataSet) {
         Log.e("History", "Data returned for Data type: " + dataSet.getDataType().getName());
         DateFormat dateFormat = DateFormat.getDateInstance();
@@ -160,28 +284,39 @@ public class MainActivity extends AppCompatActivity implements
                         " Value: " + dp.getValue(field));
 
 //                if(field.getName().equals(F)){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                            if (dp.getDataType().getName().equals("com.google.heart_rate.summary")) {
+                        DatabaseReference reference =
+                                databaseReference.child("teste").child("users")
+                                        .child(firebaseAuth.getCurrentUser().getUid());
+
+
+
+                        if (dp.getDataType().getName().equals("com.google.heart_rate.summary")) {
+                            if (field.getName().equals("average")) {
                                 tvHeight.setText(String.valueOf(dp.getValue(field)) + " BPM");
-                            } else if(dp.getDataType().getName().equals("com.google.step_count.delta")) {
-                                tvWeight.setText(String.valueOf(dp.getValue(field)));
-                            }
 
+                                reference.child("sensor")
+                                        .child("heart_rate").setValue(String.valueOf(dp.getValue(field)));
+                            }
+                        } else if(dp.getDataType().getName().equals("com.google.step_count.delta")) {
+                            tvWeight.setText(String.valueOf(dp.getValue(field)));
+                            reference.child("sensor")
+                                    .child("step_count").setValue(String.valueOf(dp.getValue(field)));
 
                         }
-                    });
+
+
+                    }
+                });
 
 //                }
 
             }
         }
     }
-
-
-
 
 
     /** Interfaces*/
